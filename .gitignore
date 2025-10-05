@@ -1,0 +1,76 @@
+# ========================================================================
+# === SECRETS & ENVIRONMENT VARIABLES                                ===
+# ========================================================================
+# Ignore all .env files in the root and any subdirectories.
+# This is the most important rule to keep your secrets safe.
+.env
+.env.*
+!.env.example
+
+# Also ignore .env files inside the backend and frontend folders
+/back-end/.env
+/frontend/.env
+
+
+# ========================================================================
+# === GENERAL DEPENDENCIES & BUILD ARTIFACTS                         ===
+# ========================================================================
+# These are common to both frontend and backend
+
+# Dependency directories
+node_modules/
+/back-end/node_modules/
+/frontend/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+# ========================================================================
+# === FRONTEND SPECIFIC (React / Vite)                               ===
+# ========================================================================
+
+# Build output
+/frontend/dist/
+/frontend/dist-ssr/
+
+# Local development files
+/frontend/*.local
+
+
+# ========================================================================
+# === BACKEND SPECIFIC (Node.js / Express)                           ===
+# ========================================================================
+
+# Coverage directory
+/back-end/coverage/
+
+# Production build folder (if you were to compile TypeScript)
+/back-end/dist/
+
+
+# ========================================================================
+# === OPERATING SYSTEM & EDITOR FILES                                ===
+# ========================================================================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
