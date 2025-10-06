@@ -20,12 +20,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // --- API Routes Setup ---
-app.use("/passwords", passwordRoutes);
-app.use("/categories", categoryRoutes);
-app.use("/stats", statsRoutes);
+app.use("/api/passwords", passwordRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/stats", statsRoutes);
 
 // Health check route
-app.get("/health", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({
     success: true,
     message: "PassOp Server is running",
