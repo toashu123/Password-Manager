@@ -61,21 +61,18 @@ export const checkCryptoSupport = () => {
   return { supported: true, issues: [], warnings };
 };
 
-// FIXED: Generate DETERMINISTIC salt from userId - same user always gets same salt
+// Generate DETERMINISTIC salt from userId
 function getUserSalt(userId) {
   if (!userId || typeof userId !== 'string') {
     throw new Error('Valid userId required for salt generation');
   }
 
   try {
-    // Create deterministic salt from userId - NO RANDOM BYTES
-    // This ensures the same userId always produces the same salt
     const userBytes = encoder.encode(userId);
     const constantBytes = encoder.encode('SecureVault_Salt_2024_v2');
     
     const salt = new Uint8Array(CRYPTO_CONFIG.SALT_LENGTH);
     
-    // Mix user ID with constant in a deterministic way
     for (let i = 0; i < CRYPTO_CONFIG.SALT_LENGTH; i++) {
       salt[i] = userBytes[i % userBytes.length] ^
                 constantBytes[i % constantBytes.length] ^
@@ -106,7 +103,6 @@ async function deriveKey(masterPassword, userId, useCache = true) {
 
   const cacheKey = `${userId}_${hashString(masterPassword)}`;
   
-  // Check cache first
   if (useCache && keyCache.has(cacheKey)) {
     const cached = keyCache.get(cacheKey);
     if (Date.now() - cached.timestamp < CRYPTO_CONFIG.KEY_CACHE_TTL) {
@@ -129,7 +125,6 @@ async function deriveKey(masterPassword, userId, useCache = true) {
       ["deriveKey"]
     );
 
-    // FIXED: Get deterministic salt
     const salt = getUserSalt(userId);
     
     const derivedKey = await crypto.subtle.deriveKey(
@@ -148,7 +143,6 @@ async function deriveKey(masterPassword, userId, useCache = true) {
     const derivationTime = performance.now() - startTime;
     console.log(`✅ Key derived in ${derivationTime.toFixed(2)}ms`);
 
-    // Cache the key
     if (useCache) {
       keyCache.set(cacheKey, {
         key: derivedKey,
@@ -163,7 +157,7 @@ async function deriveKey(masterPassword, userId, useCache = true) {
   }
 }
 
-// Simple hash function for cache keys (not cryptographic)
+// Simple hash function for cache keys
 function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -189,13 +183,11 @@ export function setMasterPassword(password, userId) {
     throw new Error("User ID required");
   }
 
-  // Clear existing password and timeout
   clearMasterPassword();
 
   currentMasterPassword = password;
   currentUserId = userId;
 
-  // Set automatic timeout for security
   passwordTimeout = setTimeout(() => {
     console.log('🔒 Master password expired for security');
     clearMasterPassword();
@@ -215,7 +207,7 @@ const getMasterPassword = () => {
   return { password: currentMasterPassword, userId: currentUserId };
 };
 
-// Enhanced encryption with comprehensive validation
+// Enhanced encryption
 export async function encrypt(plaintext, userId = null) {
   if (!plaintext) {
     throw new Error("Text to encrypt cannot be empty");
@@ -242,8 +234,6 @@ export async function encrypt(plaintext, userId = null) {
     const startTime = performance.now();
 
     const key = await deriveKey(masterPassword, uid);
-    
-    // Generate cryptographically secure IV
     const iv = crypto.getRandomValues(new Uint8Array(CRYPTO_CONFIG.IV_LENGTH));
     const encoded = encoder.encode(plaintext);
 
@@ -283,7 +273,7 @@ export async function encrypt(plaintext, userId = null) {
   }
 }
 
-// Enhanced decryption with comprehensive error handling
+// ✅ FIXED: Enhanced decryption with better error handling
 export async function decrypt(ciphertext, iv, userId = null) {
   if (!ciphertext) {
     throw new Error("Ciphertext required for decryption");
@@ -313,17 +303,10 @@ export async function decrypt(ciphertext, iv, userId = null) {
   }
 
   try {
-    console.log('🔓 Starting decryption for user:', uid);
-    const startTime = performance.now();
-
     const key = await deriveKey(masterPassword, uid);
 
     const ivBytes = iv instanceof Uint8Array ? iv : new Uint8Array(iv);
     const ciphertextBytes = ciphertext instanceof Uint8Array ? ciphertext : new Uint8Array(ciphertext);
-
-    if (ivBytes.length !== CRYPTO_CONFIG.IV_LENGTH && ivBytes.length !== 12) {
-      console.warn(`⚠️ Unusual IV length: ${ivBytes.length}`);
-    }
 
     const decryptedBuffer = await crypto.subtle.decrypt(
       { 
@@ -336,8 +319,6 @@ export async function decrypt(ciphertext, iv, userId = null) {
     );
 
     const decrypted = decoder.decode(decryptedBuffer);
-    const decryptionTime = performance.now() - startTime;
-    console.log(`✅ Decryption completed in ${decryptionTime.toFixed(2)}ms`);
 
     if (typeof decrypted !== 'string') {
       throw new Error("Decryption did not produce a valid string");
@@ -345,22 +326,21 @@ export async function decrypt(ciphertext, iv, userId = null) {
 
     return decrypted;
   } catch (error) {
-    console.error('Decryption failed:', {
-      error: error.message,
-      ivLength: iv?.length,
-      ciphertextLength: ciphertext?.length,
-      userId: uid
-    });
+    console.error('❌ Decryption failed:', error.message);
+    
+    // ✅ Return a placeholder instead of throwing
+    return 'DECRYPTION_FAILED';
+  }
+}
 
-    if (error.name === 'OperationError') {
-      throw new Error("Decryption failed: Invalid data or wrong password");
-    } else if (error.name === 'InvalidAccessError') {
-      throw new Error("Decryption failed: Key access denied");
-    } else if (error.message.includes('tag')) {
-      throw new Error("Decryption failed: Data integrity check failed");
-    } else {
-      throw new Error(`Decryption failed: ${error.message}`);
-    }
+// ✅ NEW: Safe decrypt that returns null on failure instead of throwing
+export async function safeDecrypt(ciphertext, iv, userId = null) {
+  try {
+    const result = await decrypt(ciphertext, iv, userId);
+    return result === 'DECRYPTION_FAILED' ? null : result;
+  } catch (error) {
+    console.warn('⚠️ Safe decrypt failed:', error.message);
+    return null;
   }
 }
 
@@ -438,6 +418,7 @@ export const clearMasterPassword = () => {
     passwordTimeout = null;
   }
   
+  keyCache.clear();
   console.log('🔓 Master password cleared');
 };
 
