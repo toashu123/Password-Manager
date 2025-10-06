@@ -222,7 +222,7 @@ export const PasswordProvider = ({ children }) => {
         if (userCategories.length === 0) {
           console.log("🔧 No categories found, initializing defaults...");
           const initResponse = await fetch(
-            "${BACKEND_URL}/api/categories/initialize",
+            `${BACKEND_URL}/api/categories/initialize`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -318,7 +318,7 @@ export const PasswordProvider = ({ children }) => {
         dataSize: JSON.stringify(passwordWithUser).length,
       });
 
-      const response = await fetch("${BACKEND_URL}/api/passwords", {
+      const response = await fetch(`${BACKEND_URL}/api/passwords`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(passwordWithUser),
@@ -391,7 +391,7 @@ export const PasswordProvider = ({ children }) => {
         userEmail: user.primaryEmailAddress?.emailAddress,
       };
 
-      const response = await fetch("${BACKEND_URL}/api/categories", {
+      const response = await fetch(`${BACKEND_URL}/api/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(categoryWithUser),
