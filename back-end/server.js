@@ -5,11 +5,13 @@ const cors = require("cors");
 const { connectDB } = require("./config/database");
 const errorHandler = require("./middleware/errorHandler");
 
+// Load environment variables FIRST
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware - Setup BEFORE routes
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -29,20 +31,18 @@ async function startServer() {
     app.use("/categories", categoryRoutes);
     app.use("/stats", statsRoutes);
 
-    // 🔐 ADD AUTHENTICATION ROUTES HERE (for Chrome Extension)
-    // Simple authentication endpoint for Chrome extension
+    // Authentication routes for Chrome Extension
     app.post('/auth/login', async (req, res) => {
       try {
         const { email, password } = req.body;
         
         console.log('🔐 Extension login attempt for:', email);
         
-        // For testing purposes - create a simple user validation
+        // For testing purposes - simple user validation
         const validUsers = {
           'test@passop.com': 'password123',
           'admin@passop.com': 'admin123',
           'user@passop.com': 'user123',
-          // Add more test credentials as needed
         };
         
         if (validUsers[email] && validUsers[email] === password) {
@@ -123,16 +123,16 @@ async function startServer() {
       });
     });
 
-    // 🔧 FIXED: 404 Handler - Use proper catch-all syntax
-    app.use("/*catchall", (req, res) => {
+    // ✅ FIXED: 404 Handler - Removed the buggy wildcard
+    app.use((req, res) => {
       res.status(404).json({
         success: false,
         error: "Route not found",
         path: req.originalUrl,
         method: req.method,
         availableRoutes: [
-          "POST /auth/login",           // ← Added this
-          "POST /auth/logout",          // ← Added this
+          "POST /auth/login",
+          "POST /auth/logout",
           "GET /passwords?userId=xxx",
           "POST /passwords",
           "PUT /passwords/:id",
@@ -148,7 +148,7 @@ async function startServer() {
       });
     });
 
-    // Error handling middleware
+    // Error handling middleware (must be last)
     app.use(errorHandler);
 
     app.listen(PORT, () => {
