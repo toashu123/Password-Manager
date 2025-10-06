@@ -48,7 +48,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🔄 Loading passwords for user:", user.id);
 
       const response = await fetch(
-        `${BACKEND_URL}/passwords?userId=${user.id}`,
+        `${BACKEND_URL}/api/passwords?userId=${user.id}`,
         {
           method: "GET",
           headers: {
@@ -211,7 +211,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🔄 Loading categories for user:", user.id);
 
       const response = await fetch(
-        `${BACKEND_URL}/categories?userId=${user.id}`
+        `${BACKEND_URL}/api/categories?userId=${user.id}`
       );
 
       if (response.ok) {
@@ -220,7 +220,7 @@ export const PasswordProvider = ({ children }) => {
         if (userCategories.length === 0) {
           console.log("🔧 No categories found, initializing defaults...");
           const initResponse = await fetch(
-            "${BACKEND_URL}/categories/initialize",
+            "${BACKEND_URL}/api/categories/initialize",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -316,7 +316,7 @@ export const PasswordProvider = ({ children }) => {
         dataSize: JSON.stringify(passwordWithUser).length,
       });
 
-      const response = await fetch("${BACKEND_URL}/passwords", {
+      const response = await fetch("${BACKEND_URL}/api/passwords", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(passwordWithUser),
@@ -389,7 +389,7 @@ export const PasswordProvider = ({ children }) => {
         userEmail: user.primaryEmailAddress?.emailAddress,
       };
 
-      const response = await fetch("${BACKEND_URL}/categories", {
+      const response = await fetch("${BACKEND_URL}/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(categoryWithUser),
@@ -446,7 +446,7 @@ export const PasswordProvider = ({ children }) => {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/passwords/${passwordId}`,
+        `${BACKEND_URL}/api/passwords/${passwordId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -492,7 +492,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("✏️ Updating category:", categoryId);
 
       const response = await fetch(
-        `${BACKEND_URL}/categories/${categoryId}`,
+        `${BACKEND_URL}/api/categories/${categoryId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -534,7 +534,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🗑️ Deleting password:", passwordId);
 
       const response = await fetch(
-        `${BACKEND_URL}/passwords/${passwordId}`,
+        `${BACKEND_URL}/api/passwords/${passwordId}`,
         {
           method: "DELETE",
           headers: {
@@ -571,7 +571,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🗑️ Deleting category:", categoryId);
 
       const response = await fetch(
-        `${BACKEND_URL}/categories/${categoryId}`,
+        `${BACKEND_URL}/api/categories/${categoryId}`,
         {
           method: "DELETE",
           headers: {
