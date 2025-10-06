@@ -7,7 +7,9 @@ import {
   decrypt,
   testCrypto,
   checkCryptoSupport,
+  isMasterPasswordSet,  // ✅ ADD THIS
 } from "../utils/cryptoUtils";
+
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -635,56 +637,66 @@ export const PasswordProvider = ({ children }) => {
   };
 
   // Initialize crypto and load data when user changes
-  useEffect(() => {
-    const initializeCrypto = async () => {
-      if (user?.id) {
-        try {
-          console.log("🔧 Initializing crypto for user:", user.id);
+  // Initialize crypto and load data when user changes
+useEffect(() => {
+  const initializeCrypto = async () => {
+    if (user?.id) {
+      try {
+        console.log("🔧 Initializing crypto for user:", user.id);
 
-          // Check browser crypto support
-          if (!checkCryptoSupport()) {
-            throw new Error("Browser does not support required crypto APIs");
-          }
-
-          // Test crypto functions
-          console.log("🧪 Testing crypto functions...");
-          const cryptoWorking = await testCrypto();
-          if (!cryptoWorking) {
-            throw new Error("Crypto functions failed initialization test");
-          }
-
-          // Set master password
-          const masterPassword = `master-${user.id}-SecureVault-2024`;
-          setMasterPassword(masterPassword, user.id);
-          console.log("✅ Master password set for user:", user.id);
-
-          setCryptoReady(true);
-          console.log("✅ Crypto system ready");
-
-          // Small delay to ensure crypto is fully ready
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          // Load passwords and categories
-          console.log("🔄 Loading data...");
-          await Promise.all([loadPasswords(), loadCategories()]);
-          console.log("✅ All data loading initiated");
-        } catch (error) {
-          console.error("❌ Failed to initialize crypto:", error);
-          setCryptoReady(false);
-          setPasswordArray([]);
-          setCategories([]);
+        // Check browser crypto support
+        const cryptoSupport = checkCryptoSupport();
+        if (!cryptoSupport.supported) {
+          throw new Error("Browser does not support required crypto APIs");
         }
-      } else {
-        console.log("🔓 No user found, clearing data");
-        clearMasterPassword();
+
+        // ✅ WAIT for master password to be set by App.jsx
+        // Check if master password is already set
+        const maxWait = 5000; // 5 seconds max wait
+        const startTime = Date.now();
+        
+        while (!isMasterPasswordSet() && Date.now() - startTime < maxWait) {
+          console.log("⏳ Waiting for master password to be set by App.jsx...");
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        if (!isMasterPasswordSet()) {
+          throw new Error("Master password not set by App.jsx");
+        }
+
+        console.log("✅ Master password detected, testing crypto...");
+
+        // Test crypto functions
+        const cryptoWorking = await testCrypto();
+        if (!cryptoWorking) {
+          throw new Error("Crypto functions failed initialization test");
+        }
+
+        setCryptoReady(true);
+        console.log("✅ Crypto system ready");
+
+        // Load passwords and categories
+        console.log("🔄 Loading data...");
+        await Promise.all([loadPasswords(), loadCategories()]);
+        console.log("✅ All data loading initiated");
+      } catch (error) {
+        console.error("❌ Failed to initialize crypto:", error);
         setCryptoReady(false);
         setPasswordArray([]);
         setCategories([]);
       }
-    };
+    } else {
+      console.log("🔓 No user found, clearing data");
+      clearMasterPassword();
+      setCryptoReady(false);
+      setPasswordArray([]);
+      setCategories([]);
+    }
+  };
 
-    initializeCrypto();
-  }, [user?.id]);
+  initializeCrypto();
+}, [user?.id]);
+
 
   // Additional effect to reload data when crypto becomes ready
   useEffect(() => {
