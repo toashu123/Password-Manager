@@ -30,7 +30,7 @@ A full-stack password manager application with end-to-end encryption, multi-fact
 - Web Crypto API
 
 ## 📁 Project Structure
-
+```
 password-manager/
 ├── front-end/
 │ ├── src/
@@ -71,8 +71,7 @@ password-manager/
 │ └── errorHandler.js
 ├── server.js
 └── package.json
-
-text
+```
 
 ## 🚀 Getting Started
 
@@ -88,13 +87,11 @@ text
 git clone https://github.com/yourusername/password-manager.git
 cd password-manager
 
-text
-
 2. **Setup Backend**
 cd back-end
 npm install
 
-text
+
 
 Create `.env` file in `back-end/`:
 PORT=3000
@@ -102,19 +99,19 @@ MONGODB_URI=your_mongodb_connection_string
 DB_NAME=passop
 NODE_ENV=development
 
-text
+
 
 3. **Setup Frontend**
 cd ../front-end
 npm install
 
-text
+
 
 Create `.env` file in `front-end/`:
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 VITE_BACKEND_URL=http://localhost:3000
 
-text
+
 
 ### Running Locally
 
@@ -122,14 +119,14 @@ text
 cd back-end
 npm start
 
-text
+
 Backend runs on: `http://localhost:3000`
 
 2. **Start Frontend Development Server**
 cd front-end
 npm run dev
 
-text
+
 Frontend runs on: `http://localhost:5173`
 
 ## 🌐 Deployment
@@ -167,13 +164,13 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 DB_NAME=passop
 NODE_ENV=production
 
-text
+
 
 ### Frontend (.env)
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxx
 VITE_BACKEND_URL=https://your-backend.onrender.com
 
-text
+
 
 ## 📝 API Endpoints
 
@@ -223,13 +220,13 @@ npm run build # Build for production
 npm run preview # Preview production build
 npm run lint # Run ESLint
 
-text
+
 
 **Backend:**
 npm start # Start server
 npm run dev # Start with nodemon
 
-text
+
 
 ## 📦 Dependencies
 
