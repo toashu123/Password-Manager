@@ -9,6 +9,8 @@ import {
   checkCryptoSupport,
 } from "../utils/cryptoUtils";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const PasswordContext = createContext();
 
 export const usePasswords = () => {
@@ -46,7 +48,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🔄 Loading passwords for user:", user.id);
 
       const response = await fetch(
-        `/api/passwords?userId=${user.id}`,
+        `${BACKEND_URL}/passwords?userId=${user.id}`,
         {
           method: "GET",
           headers: {
@@ -209,7 +211,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🔄 Loading categories for user:", user.id);
 
       const response = await fetch(
-        `/api/categories?userId=${user.id}`
+        `${BACKEND_URL}/categories?userId=${user.id}`
       );
 
       if (response.ok) {
@@ -218,7 +220,7 @@ export const PasswordProvider = ({ children }) => {
         if (userCategories.length === 0) {
           console.log("🔧 No categories found, initializing defaults...");
           const initResponse = await fetch(
-            "/api/categories/initialize",
+            "${BACKEND_URL}/categories/initialize",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -314,7 +316,7 @@ export const PasswordProvider = ({ children }) => {
         dataSize: JSON.stringify(passwordWithUser).length,
       });
 
-      const response = await fetch("/api/passwords", {
+      const response = await fetch("${BACKEND_URL}/passwords", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(passwordWithUser),
@@ -387,7 +389,7 @@ export const PasswordProvider = ({ children }) => {
         userEmail: user.primaryEmailAddress?.emailAddress,
       };
 
-      const response = await fetch("/api/categories", {
+      const response = await fetch("${BACKEND_URL}/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(categoryWithUser),
@@ -444,7 +446,7 @@ export const PasswordProvider = ({ children }) => {
       }
 
       const response = await fetch(
-        `/api/passwords/${passwordId}`,
+        `${BACKEND_URL}/passwords/${passwordId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -490,7 +492,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("✏️ Updating category:", categoryId);
 
       const response = await fetch(
-        `/api/categories/${categoryId}`,
+        `${BACKEND_URL}/categories/${categoryId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -532,7 +534,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🗑️ Deleting password:", passwordId);
 
       const response = await fetch(
-        `/api/passwords/${passwordId}`,
+        `${BACKEND_URL}/passwords/${passwordId}`,
         {
           method: "DELETE",
           headers: {
@@ -569,7 +571,7 @@ export const PasswordProvider = ({ children }) => {
       console.log("🗑️ Deleting category:", categoryId);
 
       const response = await fetch(
-        `/api/categories/${categoryId}`,
+        `${BACKEND_URL}/categories/${categoryId}`,
         {
           method: "DELETE",
           headers: {
